@@ -2,7 +2,7 @@
 IAC for deploying a highly available Rke2 Kubernetes cluster
 
 ## Usage
-Fist, make sure  [Incus client](https://linuxcontainers.org/incus/docs/main/installing/#installing) installed.
+First, make sure [Incus client](https://linuxcontainers.org/incus/docs/main/installing/#installing) is installed.
 Them, you need to autenticate into the Incus cluster. To do so, create an Incus trust token for your client on the cluster
 ```sh
 incus config trust add YOUR_CLIENT
@@ -26,7 +26,7 @@ terraform plan
 ```
 and create the resources
 ```sh
-terraform plan apply
+terraform apply
 ```
 This terraform will create an inventory that will be used by Ansible. To run the playbook
 
