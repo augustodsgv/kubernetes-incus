@@ -1,0 +1,26 @@
+all:
+   vars:
+      ansible_connection: community.general.incus
+      ansible_user: root
+      ansible_incus_remote: ${ incus_remote_name }
+      ansible_incus_project: ${ incus_project }
+   children:
+      proxy:
+         hosts:
+            ${ rke2-proxy.name }:
+      control-plane:
+         hosts:
+            ${ rke2-cpa.name }:
+            ${ rke2-cpb.name }:
+            ${ rke2-cpc.name }:
+      workers:
+         hosts:
+%{ for worker in rke2-workers-a-pool ~}
+            ${ worker.name ~}:
+%{ endfor ~}
+%{ for worker in rke2-workers-b-pool ~}
+            ${ worker.name ~}:
+%{ endfor ~}
+%{ for worker in rke2-workers-c-pool ~}
+            ${ worker.name ~}:
+%{ endfor ~}
