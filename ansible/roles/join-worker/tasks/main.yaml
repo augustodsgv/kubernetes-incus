@@ -1,0 +1,27 @@
+---
+- name: "Create config directory"
+  ansible.builtin.file:
+    path: "/etc/rancher/rke2"
+    state: "directory"
+
+- name: "Create config file"
+  ansible.builtin.template:
+    src: config.yaml.j2
+    dest: "/etc/rancher/rke2/config.yaml"
+
+- name: "Copy systemd env file"
+  ansible.builtin.copy:
+    src: "rke2-agent.env"
+    dest: "/etc/systemd/system/"
+
+- name: "Copy systemd service file"
+  ansible.builtin.copy:
+    src: "rke2-agent.service"
+    dest: "/etc/systemd/system/"
+
+- name: "Enable systemd service"
+  ansible.builtin.systemd:
+    name: rke2-agent
+    enabled: true
+    state: started
+    daemon_reload: true

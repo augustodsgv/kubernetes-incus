@@ -1,0 +1,10 @@
+frontend rke2-servers
+    mode tcp
+    bind *:9345
+    default_backend rke2-servers
+
+backend rke2-servers
+   mode tcp
+{% for server in groups['control-plane'] %}
+    server {{ server }} {{ hostvars[server].ansible_default_ipv4.address }}:9345 check
+{% endfor %}

@@ -1,0 +1,42 @@
+---
+- name: "Install dependencies"
+  ansible.builtin.apt:
+    name:
+    - "curl"
+    - iptables
+    state: "present"
+    update_cache: "yes"
+
+- name: "Create temporary directory"
+  ansible.builtin.tempfile:
+    suffix: "-rke2-install-temp"
+    state: "directory"
+  register: rke2_tmp_dir
+
+- debug:
+    var: rke2_tmp_dir.path
+
+- name: "Download rke2 tarball"
+  ansible.builtin.get_url:
+    url: "https://github.com/rancher/rke2/releases/download/{{ rke2_release }}/rke2.linux-amd64.tar.gz"
+    dest:  "{{ rke2_tmp_dir.path }}/rke2.linux-amd64.tar.gz"
+    mode: "0644"
+
+- name: "Extract tarball"
+  ansible.builtin.unarchive:
+    src: "{{ rke2_tmp_dir.path }}/rke2.linux-amd64.tar.gz"
+    dest: "{{ rke2_tmp_dir.path }}"
+    remote_src: "yes"
+
+- name: "Debug extracted files"
+  ansible.builtin.command: ls {{ rke2_tmp_dir.path }}/bin
+  register: ls_output
+
+- debug:
+    var: ls_output.stdout_lines
+
+- name: "Move rke2 binaries"
+  ansible.builtin.copy:
+    src: "{{ rke2_tmp_dir.path }}/bin/"
+    dest: "/usr/local/bin/"
+    remote_src: "yes"

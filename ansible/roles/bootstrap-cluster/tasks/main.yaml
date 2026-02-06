@@ -1,0 +1,39 @@
+---
+## TODO: Generate random cluster token
+# - name: "Generating cluster token"
+#   set_fact:
+#     cluster_token: "{{ lookup('ansible.builtin.password', '/dev/null', length=16, chars='ascii_lowercase,ascii_uppercase,digits') }}"
+
+- name: "Create config directory"
+  ansible.builtin.file:
+    path: "/etc/rancher/rke2"
+    state: "directory"
+
+- name: "Create seed node config file"
+  when: inventory_hostname == groups['control-plane'][0]
+  ansible.builtin.template:
+    src: seed-config.yaml.j2
+    dest: "/etc/rancher/rke2/config.yaml"
+
+- name: "Create joiner nodes config file"
+  when: inventory_hostname != groups['control-plane'][0]
+  ansible.builtin.template:
+    src: join-config.yaml.j2
+    dest: "/etc/rancher/rke2/config.yaml"
+
+- name: "Copy systemd env file"
+  ansible.builtin.copy:
+    src: "rke2-server.env"
+    dest: "/etc/systemd/system/"
+
+- name: "Copy systemd service file"
+  ansible.builtin.copy:
+    src: "rke2-server.service"
+    dest: "/etc/systemd/system/"
+
+- name: "Enable systemd service"
+  ansible.builtin.systemd:
+    name: rke2-server
+    enabled: true
+    state: started
+    daemon_reload: true

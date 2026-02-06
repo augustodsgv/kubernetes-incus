@@ -1,0 +1,32 @@
+# Gather facts of all hosts
+- name: "Gather facts"
+  hosts: "all"
+  gather_facts: "yes"
+  tasks: []
+
+- name: "Deploy proxy"
+  hosts: "proxy"
+  roles:
+    - "proxy"
+
+- name: "Install rke2"
+  gather_facts: "no"
+  hosts:
+    - "control-plane"
+    - "workers"
+  roles:
+    - "install-rke2"
+
+- name: "Bootstrap cluster"
+  gather_facts: "no"
+  hosts: "control-plane"
+  roles:
+    - "bootstrap-cluster"
+
+- name: "Deploy worker nodes"
+  gather_facts: "no"
+  hosts: "workers"
+  roles:
+    - "join-worker"
+  vars:
+    cluster_token: super-token
