@@ -9,17 +9,17 @@
     path: "/etc/rancher/rke2"
     state: "directory"
 
-- name: "Create seed node config file"
-  when: inventory_hostname == groups['control-plane'][0]
+- name: "Create seed config file"
   ansible.builtin.template:
     src: seed-config.yaml.j2
     dest: "/etc/rancher/rke2/config.yaml"
+  when: server_action == "seed"
 
-- name: "Create joiner nodes config file"
-  when: inventory_hostname != groups['control-plane'][0]
+- name: "Create join config file"
   ansible.builtin.template:
     src: join-config.yaml.j2
     dest: "/etc/rancher/rke2/config.yaml"
+  when: server_action == "join"
 
 - name: "Copy systemd env file"
   ansible.builtin.copy:
@@ -33,7 +33,13 @@
 
 - name: "Enable systemd service"
   ansible.builtin.systemd:
-    name: rke2-server
+    name: "rke2-server"
     enabled: true
-    state: started
+    state: "started"
     daemon_reload: true
+
+- name: "Wait server start"
+  ansible.builtin.wait_for:
+    port: 9345
+    timeout: 300
+    

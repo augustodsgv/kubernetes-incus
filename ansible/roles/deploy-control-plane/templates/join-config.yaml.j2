@@ -1,3 +1,4 @@
+server: https://{{ hostvars["rke2-proxy"].ansible_default_ipv4.address }}:9345
 token: {{ cluster_token }}
 tls-san:
     - {{ hostvars["rke2-proxy"].ansible_default_ipv4.address }}
@@ -5,3 +6,4 @@ tls-san:
     - {{ hostvars[server].ansible_default_ipv4.address }}
 {% endfor %}
 ingress-controller: {{ ingress_controller }}
+cni: {{ cni }}

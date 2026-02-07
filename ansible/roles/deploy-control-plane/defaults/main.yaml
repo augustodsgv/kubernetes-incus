@@ -1,0 +1,3 @@
+ingress_controller: none
+cni: cilium
+server_action: join

@@ -6,8 +6,9 @@
 
 - name: "Deploy proxy"
   hosts: "proxy"
+  gather_facts: "no"
   roles:
-    - "proxy"
+    - "deploy-proxy"
 
 - name: "Install rke2"
   gather_facts: "no"
@@ -17,16 +18,30 @@
   roles:
     - "install-rke2"
 
-- name: "Bootstrap cluster"
+- name: "Bootstrap seed node"
   gather_facts: "no"
-  hosts: "control-plane"
+  hosts: control-plane[0]
   roles:
-    - "bootstrap-cluster"
+    - "deploy-control-plane"
+  vars:
+    cluster_token: super-token
+    cni: cilium
+    server_action: seed
+
+- name: "Join control-plane nodes"
+  gather_facts: "no"
+  hosts: control-plane[1:]
+  roles:
+    - "deploy-control-plane"
+  vars:
+    cluster_token: super-token
+    cni: cilium
+    server_action: join
 
 - name: "Deploy worker nodes"
   gather_facts: "no"
   hosts: "workers"
   roles:
-    - "join-worker"
+    - "deploy-worker"
   vars:
     cluster_token: super-token
