@@ -14,6 +14,8 @@ provider "incus" {
   }
 }
 
+# Nodes
+## Proxy
 resource "incus_instance" "rke2-proxy" {
   name    = "rke2-proxy"
   image   = var.node_image
@@ -25,6 +27,7 @@ resource "incus_instance" "rke2-proxy" {
   }
 }
 
+## Control plane
 resource "incus_instance" "rke2-cpa" {
   name    = "rke2-cpa"
   image   = var.node_image
@@ -61,6 +64,7 @@ resource "incus_instance" "rke2-cpc" {
   }
 }
 
+## Worker nodes
 resource "incus_instance" "rke2-worker-a-pool" {
   name    = "rke2-worker-a-${count.index}"
   count   = var.pool_a_replica_count
@@ -97,5 +101,39 @@ resource "incus_instance" "rke2-worker-c-pool" {
   config = {
     "limits.cpu"    = 2
     "limits.memory" = "4GB"
+  }
+}
+
+# Load Balancers
+## Apiserver loadbalancer
+resource "incus_network_lb" "rke2-apiserver" {
+  network        = var.incus_public_network
+  listen_address = var.incus_lb_address
+  backend {
+    name           = "rke2-cpa"
+    target_address = incus_instance.rke2-cpa.ipv4_address
+    target_port    = 6443
+  }
+
+  backend {
+    name           = "rke2-cpb"
+    target_address = incus_instance.rke2-cpb.ipv4_address
+    target_port    = 6443
+  }
+
+  backend {
+    name           = "rke2-cpc"
+    target_address = incus_instance.rke2-cpc.ipv4_address
+    target_port    = 6443
+  }
+
+  port {
+    protocol    = "tcp"
+    listen_port = 6443
+    target_backend = [
+      "rke2-cpa",
+      "rke2-cpb",
+      "rke2-cpc",
+    ]
   }
 }

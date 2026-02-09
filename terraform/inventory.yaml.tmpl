@@ -4,6 +4,7 @@ all:
       ansible_user: root
       ansible_incus_remote: ${ incus_remote_name }
       ansible_incus_project: ${ incus_project }
+      incus_lb_address: ${ incus_lb_address }
    children:
       proxy:
          hosts:

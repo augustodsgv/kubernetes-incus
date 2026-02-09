@@ -3,6 +3,7 @@ resource "local_file" "inventory_template" {
   content = templatefile("${path.module}/inventory.yaml.tmpl", {
     incus_remote_name   = var.incus_remote_name
     incus_project       = var.incus_project
+    incus_lb_address    = var.incus_lb_address
     rke2-proxy          = incus_instance.rke2-proxy
     rke2-cpa            = incus_instance.rke2-cpa
     rke2-cpb            = incus_instance.rke2-cpb

@@ -14,6 +14,16 @@ variable "incus_project" {
   description = "Incus project to deploy stuff"
 }
 
+variable "incus_public_network" {
+  type        = string
+  description = "Name of a incus network to provide IPs"
+}
+
+variable "incus_lb_address" {
+  type        = string
+  description = "IP address of the incus loadbalancer"
+}
+
 variable "pool_a_replica_count" {
   type        = number
   description = "Number of nodes in worker a pool"
